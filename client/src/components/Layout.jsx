@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet,Navigate } from 'react-router-dom';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -8,21 +8,28 @@ import {
   UserOutlined
 } from '@ant-design/icons';
 import { Button, Layout, Menu, theme } from 'antd';
+
+import Cookies from 'js-cookie'; 
+
 const { Header, Sider, Content } = Layout;
 const ProtectedRoute = ({ isAuthenticated }) => {
-  // if (!isAuthenticated) { 
-  //   return <Navigate to="/" replace />;
-  // }
+  
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  // if (!isAuthenticated) { 
+  //   console.log(Cookies.get('access_token_cookie'))
+  //   return <Navigate to="/" replace />;
+  // }
+
   return (
     <Layout>
       <Sider trigger={null} collapsible collapsed={collapsed}>
         <div className="demo-logo-vertical" />
         <div className="p-2 text-white">
-          {collapsed ? <h2>Exfy</h2> : <h2>EXPRESSIFY</h2>}
+          {collapsed ? <h2>EXP</h2> : <h2>EXPRESSIFY</h2>}
         </div>
         <Menu
           theme="dark"
@@ -76,7 +83,7 @@ const ProtectedRoute = ({ isAuthenticated }) => {
           style={{
             margin: '24px 16px',
             padding: 24,
-            minHeight: 280,
+            minHeight: 300,
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
           }}

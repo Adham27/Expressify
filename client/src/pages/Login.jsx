@@ -4,6 +4,7 @@ import '../styles/Login.scss';
 import { Spin, message } from 'antd';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Cookies from 'js-cookie'; 
 
 const Login = () => {
   const [loginData, setLoginData] = useState({
@@ -35,10 +36,10 @@ const Login = () => {
 
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem("Token", data.authToken);
+        localStorage.setItem("Token", Cookies.get('access_token_cookie'));
         message.success('Login successful and will be redirected to the home page');
         setTimeout(() => {
-          window.location.href = '/home';
+          window.location.href = '/dashboard';
         }, 200);
       } else {
         message.error('Incorrect email or password');

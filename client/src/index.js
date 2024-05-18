@@ -10,10 +10,11 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import App from './pages/App';
 import Profile from './pages/Profile';
-
+import Cookies from 'js-cookie'; 
 
 const getAccessToken = () => {
-  return localStorage.getItem('Token');
+  console.log(Cookies.get('user_id'))
+  return Cookies.get('access_token_cookie');
 }
 
 const isAuthenticated = () => {

@@ -99,6 +99,7 @@ class Login(Resource):
                     })
                     set_access_cookies(resp, access_token)
                     set_refresh_cookies(resp, refresh_token)
+                    resp.set_cookie('user_id', str(user.id))
                     return resp
                 else:
                     print("Password incorrect")
