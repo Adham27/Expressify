@@ -1,10 +1,10 @@
-
 from decouple import config
 
 
 class Config:
     SECRET_KEY = config('SECRET_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    UPLOAD_FOLDER = 'F:/Expressify/server/images' 
     
 
 class DevConfig(Config):
@@ -15,7 +15,6 @@ class DevConfig(Config):
     SQLALCHEMY_DATABASE_URI = config('SQLALCHEMY_DATABASE_URI')
     DEBUG = True
     SQLALCHEMY_ECHO = True
-
 class PostConfig(Config):
     pass
 

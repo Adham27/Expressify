@@ -13,13 +13,13 @@ import Profile from './pages/Profile';
 import Cookies from 'js-cookie'; 
 
 const getAccessToken = () => {
-  console.log(Cookies.get('user_id'))
-  return Cookies.get('access_token_cookie');
+  return Cookies.get('access_token_cookie') || localStorage.getItem('Token');
 }
 
 const isAuthenticated = () => {
   return !!getAccessToken();
 }
+
 
 const router = createBrowserRouter([
   {
@@ -33,18 +33,18 @@ const router = createBrowserRouter([
     index: true
   },
   {
-    element: <ProtectedRoute isAuthenticated={isAuthenticated()} />,
+    element: <ProtectedRoute isAuthenticated={isAuthenticated() } />,
     children: [
       {
-        path: 'dashboard',
+        path: `users/${localStorage.getItem('user_id')}/dashboard`,
         element: <Home />
       },
       {
-        path: 'app',
+        path:  `users/${localStorage.getItem('user_id')}/app`,
         element: <App />
       },
       {
-        path: 'profile',
+        path: `users/${localStorage.getItem('user_id')}/profile`,
         element: <Profile />
       },
     ]

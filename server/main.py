@@ -7,12 +7,17 @@ from models.base_model import db
 from controllers.auth_controller import auth
 from controllers.user_controller import user
 from controllers.report_controller import report
+from flask import Flask, send_from_directory
 app = Flask(__name__)
 CORS(app)
 
 jwt = JWTManager(app)
 # Initialize SQLAlchemy with the Flask app
 app.config.from_object(DevConfig)
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 api = Api(app, debug=True , version='1.0', title='Expressify APIs', description='API documentation' , prefix='/api')
 

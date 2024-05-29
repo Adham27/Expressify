@@ -1,7 +1,7 @@
 from sqlalchemy import and_
 from models.db import db
 from flask import jsonify
-
+import uuid
 
 class baseModel:
 
@@ -11,7 +11,11 @@ class baseModel:
 
     @classmethod
     def find_by_id(cls, model, id):
-        return model.query.get(id)
+        try:
+            uuid_id = uuid.UUID(id)
+        except ValueError:
+            return None
+        return model.query.get(str(uuid_id))
 
     @classmethod
     def get_all(cls, model, filter_condition=None):
@@ -26,43 +30,55 @@ class baseModel:
 
     @classmethod
     def get_one(cls, model, id, filter_condition=None):
+        try:
+            uuid_id = uuid.UUID(id)
+        except ValueError:
+            return jsonify({"message": "Invalid ID format"}), 400
+
         query = model.query
         if filter_condition:
             query = query.filter(filter_condition)
-        item = query.get(id)
+        item = query.get(str(uuid_id))
         if item:
             return item.serialize()
         else:
-            return jsonify({"message": f"{model.__name__} not found"})
-       
+            return jsonify({"message": f"{model.__name__} not found"}), 404
 
     @classmethod
     def update(cls, model, id, new_data):
-            item = cls.find_by_id(model, id)
-            if item:
-                for key, value in new_data.items():
-                    setattr(item, key, value)
-                db.session.commit()
-                return jsonify({"message": f"{model.__name__} updated successfully"})
-            else:
-                return jsonify({"message": f"{model.__name__} not found"})
+        try:
+            uuid_id = uuid.UUID(id)
+        except ValueError:
+            return jsonify({"message": "Invalid ID format"}), 400
+
+        item = cls.find_by_id(model, str(uuid_id))
+        if item:
+            for key, value in new_data.items():
+                setattr(item, key, value)
+            db.session.commit()
+            return jsonify({"message": f"{model.__name__} updated successfully"}), 200
+        else:
+            return jsonify({"message": f"{model.__name__} not found"}), 404
 
     @classmethod
     def delete(cls, model, id):
-        item = cls.find_by_id(model, id)
+        try:
+            uuid_id = uuid.UUID(id)
+        except ValueError:
+            return jsonify({"message": "Invalid ID format"}), 400
+
+        item = cls.find_by_id(model, str(uuid_id))
         if item:
             db.session.delete(item)
             db.session.commit()
-            return jsonify({"message": f"{model.__name__} deleted successfully"})
+            return jsonify({"message": f"{model.__name__} deleted successfully"}), 200
         else:
-            return jsonify({"message": f"{model.__name__} not found"})
-        
+            return jsonify({"message": f"{model.__name__} not found"}), 404
 
     @classmethod
     def search(cls, model, field, value):
-            item = cls.find_by_field(model, field, value)
-            if item:
-                return jsonify(item.serialize())
-            else:
-                return jsonify({"message": f"{model.__name__} not found"})
-       
+        item = cls.find_by_field(model, field, value)
+        if item:
+            return jsonify(item.serialize())
+        else:
+            return jsonify({"message": f"{model.__name__} not found"}), 404

@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import current_app as app, request, jsonify
 from flask_restx import Namespace ,Resource
 from models.base_model import db
 from models.users import User
@@ -10,13 +10,8 @@ from flask_jwt_extended import create_access_token, create_refresh_token, get_jw
 # Create a Namespace for authentication operations
 auth = Namespace('Auth', description='Authentication operations', path='/auth')
 
-UPLOAD_FOLDER = 'F:\Expressify\server\images'
-if not os.path.exists(UPLOAD_FOLDER):
-    print("i canit see it ")
-else:
-    print(UPLOAD_FOLDER)
-
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
 
 @auth.route('/signup')
 class Signup(Resource):
@@ -24,12 +19,6 @@ class Signup(Resource):
     def post(self):
         try:  
             data = request.form
-            file= request.files
-            print('------')
-            print(data)
-            print('------')
-            print(file)
-            print('------')
             # Check if password matches confirmation password
             if data['password'] != data['confirm_password']:
                 return jsonify({'message': 'Password and confirmation password do not match'})
@@ -44,8 +33,10 @@ class Signup(Resource):
                     return jsonify({'message': 'No selected file'}), 400
                 if image_file and allowed_file(image_file.filename):
                     filename = secure_filename(image_file.filename)
-                    image_path = os.path.join(UPLOAD_FOLDER, filename)
+                    upload_folder = app.config['UPLOAD_FOLDER']
+                    image_path = os.path.join(upload_folder, filename)
                     image_file.save(image_path)
+                    image_path = f'uploads/{filename}' 
                 else:
                     return jsonify({'message': 'Invalid file type'}), 400
             
@@ -90,6 +81,7 @@ class Login(Resource):
                     access_token = create_access_token(identity=user.id, fresh=True)
                     refresh_token = create_refresh_token(identity=user.id)
                     resp = jsonify({
+                        "user_id":user.id,
                         "first_name": user.first_name,
                         'last_name': user.last_name,
                         'email': user.email,
