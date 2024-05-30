@@ -10,6 +10,8 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import App from './pages/App';
 import Profile from './pages/Profile';
+import Main from './pages/Landing/main';
+import ContactUs from './pages/Landing/ContactUs';
 import Cookies from 'js-cookie'; 
 
 const getAccessToken = () => {
@@ -20,10 +22,19 @@ const isAuthenticated = () => {
   return !!getAccessToken();
 }
 
-
 const router = createBrowserRouter([
   {
     path: '/',
+    element: <Main />,
+    index: true
+  },
+  {
+    path: '/contact-us',
+    element: <ContactUs />,
+    index: true
+  },
+  {
+    path: '/Login',
     element: <Login />,
     index: true
   },
@@ -33,20 +44,21 @@ const router = createBrowserRouter([
     index: true
   },
   {
-    element: <ProtectedRoute isAuthenticated={isAuthenticated() } />,
+    element: <ProtectedRoute isAuthenticated={isAuthenticated()} />,
     children: [
       {
         path: `users/${localStorage.getItem('user_id')}/dashboard`,
         element: <Home />
       },
       {
-        path:  `users/${localStorage.getItem('user_id')}/app`,
+        path: `users/${localStorage.getItem('user_id')}/app`,
         element: <App />
       },
       {
         path: `users/${localStorage.getItem('user_id')}/profile`,
         element: <Profile />
       },
+      
     ]
   },
   {

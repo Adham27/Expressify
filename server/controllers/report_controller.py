@@ -1,3 +1,4 @@
+import uuid
 from flask import jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restx import Namespace ,Resource
@@ -5,18 +6,20 @@ from models.base_model import baseModel
 from models.users import User
 from models.reports import Reports
 # Create a Namespace for user operations
-report = Namespace('Report', description='Report operations', path='/users/')
+report = Namespace('Report', description='Report operations', path='/users')
 
-# admin 
-@report.route('/reports')
+@report.route('/<string:user_id>/report')
 class GetAllReport(Resource):
     @jwt_required()
-    def get(self):
+    def get(self,user_id):
         try:
             current_user = get_jwt_identity()
-            filter_condition = {"created_by": current_user}
-            reports = baseModel.get_all(Reports, filter_condition)
-            return reports
+            if user_id == current_user:
+                filter_condition = {"created_by": current_user}
+                reports = baseModel.get_all(Reports, filter_condition)
+                return reports
+            else:
+                return {"message": "Unauthorized"},401
         except Exception as e:
             return {'msg': e}
 

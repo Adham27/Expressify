@@ -1,12 +1,19 @@
-import React, { useState } from 'react';
-import { Table, Space, Button , Typography } from 'antd'; 
+import React, { useState, useEffect } from 'react';
+import { Table, Space, Button, Typography } from 'antd'; 
 import Search from 'antd/es/transfer/search';
+import Cookies from 'js-cookie';
 const { Text } = Typography;
+
+
 const onSearch = (value, _e, info) => console.log(info?.source, value);
 
 const Home = () => {
-
-  const[reportNumber,setNumber] = useState('22')
+  const [reportNumber, setNumber] = useState(0);
+  const [data, setData] = useState([]);
+  const getAccessToken = () => {
+    return Cookies.get('access_token_cookie') || localStorage.getItem('Token');
+  };
+  
   const columns = [
     {
       title: '#',
@@ -14,21 +21,19 @@ const Home = () => {
       key: 'key', 
     },
     {
-      title: 'Report Name',
-      dataIndex: 'Report_Name',
-      key: 'Report_Name',
-      render: (text) => <a>{text}</a>,
+      title: 'Report ID',
+      dataIndex:'id', 
+      key:'id'
     },
     {
-      title: 'created at',
+      title: 'Report Name',
+      dataIndex: 'reportname',
+      key: 'Report_Name',
+    },
+    {
+      title: 'Created At',
       dataIndex: 'created_at',
       key: 'created_at',
-    },
-    {
-      title: 'created by',
-      dataIndex: 'created_by',
-      key: 'created_by',
-      render: (text) => <a>{text}</a>,
     },
     {
       title: 'Update',
@@ -48,42 +53,28 @@ const Home = () => {
         </Space>
       ),
     },
-  
-   
   ];
 
-  const data = [
-    {
-      key: '1',
-      Report_Name: 'Task1',
-      created_at: '22:00:00',
-      created_by:'Adham'
-    },
-    {
-      key: '2',
-      Report_Name: 'Task2',
-      created_at: '02:00:00',
-      created_by:'Eyad'
-    },
-    {
-      key: '3',
-      Report_Name: 'Task3',
-      created_at: '12:00:00',
-      created_by:'Osos'
-    },
-    {
-      key: '4',
-      Report_Name: 'Task3',
-      created_at: '12:00:00',
-      created_by:'ALI'
-    },
-    {
-      key: '5',
-      Report_Name: 'Task3',
-      created_at: '12:00:00',
-      created_by:'JOE'
-    },
-  ];
+  useEffect(() => {
+    fetchReports();
+  });
+
+  const fetchReports = async () => {
+    try {
+      const token = getAccessToken();
+      const userId = localStorage.getItem('user_id');
+      const response = await fetch(`/api/users/${userId}/report`, {
+        headers: {
+          'Authorization': `Bearer ${token}`, 
+        },
+      });
+      const reports = await response.json();
+      setData(reports.map((report, index) => ({ key: index + 1, ...report })));
+      setNumber(reports.length);
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+    }
+  };
 
   const handleUpdate = (record) => {
     console.log('Update:', record);
@@ -92,6 +83,7 @@ const Home = () => {
   const handleDelete = (record) => {
     console.log('Delete:', record);
   };
+
   return (
     <>
       <div className="">
@@ -104,11 +96,11 @@ const Home = () => {
         />
       </div>
       <div className="d-flex justify-content-between mt-5">
-        <h4>dashboard</h4>
-        <span>total reports: <Text strong> {reportNumber}</Text></span>
+        <h4>Dashboard</h4>
+        <span>Total reports: <Text strong>{reportNumber}</Text></span>
       </div>
-      <div className="mt-4">
-      <Table columns={columns} dataSource={data} />
+      <div className="mt-4 ">
+        <Table columns={columns} dataSource={data} />
       </div>
     </>
   );

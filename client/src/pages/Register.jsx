@@ -65,7 +65,7 @@ const Register = () => {
         localStorage.setItem("Token", data.authToken);
         message.success('Registration successful');
         setTimeout(() => {
-          window.location.href = '/dashboard';
+          window.location.href = '/login';
         }, 2000);
       } else {
         message.error('Registration failed');
