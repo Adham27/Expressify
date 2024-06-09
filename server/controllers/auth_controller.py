@@ -33,7 +33,7 @@ class Signup(Resource):
                     return jsonify({'message': 'No selected file'}), 400
                 if image_file and allowed_file(image_file.filename):
                     filename = secure_filename(image_file.filename)
-                    upload_folder = app.config['UPLOAD_FOLDER']
+                    upload_folder = app.config['UPLOAD_FOLDER_IMAGES']
                     image_path = os.path.join(upload_folder, filename)
                     image_file.save(image_path)
                     image_path = f'uploads/{filename}' 

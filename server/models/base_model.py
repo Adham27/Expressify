@@ -82,3 +82,10 @@ class baseModel:
             return jsonify(item.serialize())
         else:
             return jsonify({"message": f"{model.__name__} not found"}), 404
+
+    @classmethod
+    def insert(cls, model, new_data):
+        new_item = model(**new_data)
+        db.session.add(new_item)
+        db.session.commit()
+        return new_item.id

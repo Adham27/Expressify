@@ -23,8 +23,6 @@ class GetAllReport(Resource):
         except Exception as e:
             return {'msg': e}
 
-
-
 # @report.route('<int:user_id>/update/')
 # class update_report(Resource):
 #     @jwt_required()

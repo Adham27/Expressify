@@ -4,7 +4,7 @@ from decouple import config
 class Config:
     SECRET_KEY = config('SECRET_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    UPLOAD_FOLDER = 'F:/Expressify/server/images' 
+    UPLOAD_FOLDER_IMAGES = 'F:/Expressify/server/uploads/images/'
     
 
 class DevConfig(Config):
