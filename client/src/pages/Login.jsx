@@ -58,7 +58,7 @@ const Login = () => {
           <div className="col-md-6 d-flex justify-content-center align-items-center h-auto">
             <form onSubmit={handleLogin}>
               <div className="row m-5">
-                <div className="col-12 mt-3">
+                <div className="text col-12 mt-3">
                   <h2>Log in to your account.</h2>
                   <p>Welcome back! Fill your data in the required fields.</p>
                 </div>

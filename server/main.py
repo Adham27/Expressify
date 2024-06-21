@@ -21,6 +21,10 @@ app.config.from_object(DevConfig)
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER_IMAGES'], filename)
 
+@app.route('/uploads/pdf/<filename>')
+def uploaded_pdf_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER_PDF'], filename)
+
 api = Api(app, debug=True , version='1.0', title='Expressify APIs', description='API documentation' , prefix='/api')
 
 # Initialize the database with the Flask app

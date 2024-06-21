@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Space, Button, Typography } from 'antd'; 
+import { Table, Space, Button, Typography, message } from 'antd'; 
 import Search from 'antd/es/transfer/search';
 import Cookies from 'js-cookie';
 const { Text } = Typography;
-
 
 const onSearch = (value, _e, info) => console.log(info?.source, value);
 
@@ -36,11 +35,11 @@ const Home = () => {
       key: 'created_at',
     },
     {
-      title: 'Update',
-      key: 'update',
+      title: 'Download',
+      key: 'download',
       render: (_, record) => (
         <Space size="middle">
-          <Button type="primary" onClick={() => handleUpdate(record)}>Update</Button>
+          <Button type="primary" onClick={() => handleDownload(record)}>Download</Button>
         </Space>
       ),
     },
@@ -57,7 +56,7 @@ const Home = () => {
 
   useEffect(() => {
     fetchReports();
-  });
+  }, []);
 
   const fetchReports = async () => {
     try {
@@ -76,12 +75,58 @@ const Home = () => {
     }
   };
 
-  const handleUpdate = (record) => {
-    console.log('Update:', record);
+  const handleDownload = (record) => {
+    const token = getAccessToken();
+    const userId = localStorage.getItem('user_id');
+    const url = `/api/users/${userId}/report/${record.id}/download`;
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.blob();
+      }
+      throw new Error('Error downloading report');
+    })
+    .then(blob => {
+      const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${record.reportname}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    })
+    .catch(error => {
+      console.error('Error downloading report:', error);
+      message.error('Error downloading report');
+    });
   };
-
-  const handleDelete = (record) => {
-    console.log('Delete:', record);
+  const handleDelete = async (record) => {
+    const token = getAccessToken();
+    const userId = localStorage.getItem('user_id');
+    const url = `/api/users/${userId}/report/${record.id}/delete`;
+    try {
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      const result = await response.json();
+      if (response.ok) {
+        message.success(result.message);
+        fetchReports();
+      } else {
+        message.error(result.message);
+      }
+    } catch (error) {
+      console.error('Error deleting report:', error);
+      message.error('Error deleting report');
+    }
   };
 
   return (

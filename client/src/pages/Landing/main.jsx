@@ -19,11 +19,7 @@ const Main = () => {
           <AppSection/>
           <Paper />
           <ContactUS/>
-      
-      
-      
-      {/* <Footer /> */}
-
+          <Footer />
     </>
   );
 };

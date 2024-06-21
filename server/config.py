@@ -5,6 +5,7 @@ class Config:
     SECRET_KEY = config('SECRET_KEY')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     UPLOAD_FOLDER_IMAGES = 'F:/Expressify/server/uploads/images/'
+    UPLOAD_FOLDER_PDF = 'F:/Expressify/server/uploads/pdf/'
     
 
 class DevConfig(Config):

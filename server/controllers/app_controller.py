@@ -8,16 +8,14 @@ from flask import jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from flask_restx import Namespace, Resource
 from keras.models import load_model
-from keras.preprocessing import image
 from moviepy.editor import VideoFileClip
 from fpdf import FPDF
 from werkzeug.utils import secure_filename
 from models.base_model import baseModel
 from models.reports import Reports
 from sklearn.preprocessing import LabelEncoder
-
-
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 # Create a Namespace for user operations
 application = Namespace('App', description='video analyze operation', path='/users')
@@ -45,12 +43,17 @@ def preprocess_video(video_path):
         result = {"frames": []}
 
         video = VideoFileClip(video_path)
-        frame_rate = int(video.fps)
-        frames_to_extract = range(0, int(video.duration * frame_rate), frame_rate // 2)
+        total_frames = int(video.duration * video.fps)
+        max_frames = 10
+        
+        # Calculate the interval to extract frames
+        frame_interval = max(1, total_frames // max_frames)
+        frames_to_extract = range(0, total_frames, frame_interval)[:max_frames]
+
         face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
         for i, frame_no in enumerate(frames_to_extract):
-            frame_time = frame_no / frame_rate
+            frame_time = frame_no / video.fps
             frame = video.get_frame(frame_time)
           
             faces = face_cascade.detectMultiScale(frame, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
@@ -58,7 +61,7 @@ def preprocess_video(video_path):
             for j, (x, y, w, h) in enumerate(faces):
                 face_img = frame[y:y+h, x:x+w]
                 timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-                face_filename = f"{base_filename}_frame{i}_face{j}_{timestamp}.jpeg"
+                face_filename = f"{base_filename}_frame{i}_User{j}_{timestamp}.jpeg"
                 face_filepath = os.path.join(temp_dir, face_filename)
                 cv2.imwrite(face_filepath, face_img)
                 result["frames"].append(face_filename)
@@ -108,38 +111,85 @@ def process_data(preprocessed_data):
     
     return report
 
+class PDF(FPDF):
+    def header(self):
+        self.set_font('Arial', 'B', 16)
+        self.cell(0, 10, 'EXPRESSIFY', 0, 0, 'L')
+   
+        # Add a date
+        self.set_font('Arial', 'B', 12)
+        self.cell(0, 10, datetime.now().strftime('%d/%m/%Y'), 0, 1, 'R')
+        # Title
+        self.set_font('Arial', 'B', 16)
+        self.cell(0, 10, 'Emotion Detection Report', 0, 1, 'C')
+        self.ln(20)
+
 def generate_report(report_data):
     try:
+        # Generate a unique ID and report name
         id = str(uuid.uuid4())
         report_fields = {
             "id": id,
-            "reportname": f"Report_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            "reportname": f"Report_{datetime.now().strftime('%Y-%m-%d-%H:%M:%S')}",
             "created_by": get_jwt_identity(),
-            "created_at": datetime.now(),
+            "created_at": datetime.now().isoformat(' ', 'seconds'),
             "pdf": ""  # Initially set to an empty string, will update after generating PDF
         }
 
         new_report_id = baseModel.insert(Reports, report_fields)
         new_report = baseModel.find_by_id(Reports, id)
-        
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", size=12)
-        pdf.cell(200, 10, txt="Emotion Detection Report", ln=True, align='C')
 
-        for emotion in report_data["emotions"]:
-            frame_path = os.path.join('ai/temp_frames', emotion['frame'])
+        # Initialize the PDF
+        pdf = PDF()
+        pdf.add_page()
+
+        emotions_list = []
+
+        for emotion_data in report_data["emotions"]:
+            frame_path = os.path.join('ai/temp_frames', emotion_data['frame'])
             if os.path.exists(frame_path):
                 pdf.image(frame_path, x=10, y=pdf.get_y(), w=50)
                 pdf.ln(60)
-            pdf.cell(200, 10, txt=f"Frame: {emotion['frame']}, Emotion: {emotion['emotion']}", ln=True)
+            # Extract date, frame number, and face number from the frame filename
+            parts = emotion_data['frame'].split('_')
+           
+            face_number = parts[-2]  
+            frame_number = parts[-3]  
+            
+            pdf.multi_cell(200, 10, txt=f"Frame: {frame_number}, {face_number}, Date: {new_report.created_at}, Emotion: {emotion_data['emotion']}")
+            pdf.ln(10)
+            emotions_list.append(emotion_data['emotion'])
+            # Draw line separator
+            pdf.set_draw_color(0, 0, 0)
+            pdf.set_line_width(0.1)
+            pdf.line(10, pdf.get_y(), 200, pdf.get_y())
             pdf.ln(10)
 
+        # Calculate average emotion
+        emotion_counts = {emotion: emotions_list.count(emotion) for emotion in set(emotions_list)}
+        most_common_emotion = max(emotion_counts, key=emotion_counts.get)
+        average_emotion = most_common_emotion  # Simplified approach for now
+
+        # Add emotion analysis to the PDF
+        pdf.multi_cell(0, 10, txt=f"According to the emotion from the report it seems that most faces emotion is {most_common_emotion} and the average is {average_emotion}")
+        pdf.ln(10)
+        
+        # Generate pie chart
+        plt.figure(figsize=(6, 6))
+        plt.pie(emotion_counts.values(), labels=emotion_counts.keys(), autopct='%1.1f%%')
+        plt.title("Emotion Distribution")
+        pie_chart_path = os.path.join('uploads/pdf/', f"emotion_pie_chart_{id}.png")
+        plt.savefig(pie_chart_path)
+        plt.close()
+
+        pdf.image(pie_chart_path, x=60, y=pdf.get_y(), w=100)
+        pdf.ln(60)
+
+        # Save the PDF
         pdf_output_path = os.path.join('uploads/pdf/', f"report_{new_report.id}.pdf")
         pdf.output(pdf_output_path)
-
         baseModel.update(Reports, id, {"pdf": pdf_output_path})
-
+        # Return the report ID and path
         return new_report_id, pdf_output_path
     except Exception as e:
         raise RuntimeError(f"Error generating report: {e}")

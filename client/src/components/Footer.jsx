@@ -12,67 +12,22 @@ const Footer = () => {
     },
   };
 
-  const onFinish = (values) => {
-    console.log(values);
-  };
-
-  const validateMessages = {
-    required: '${label} is required!',
-    types: {
-      email: '${label} is not a valid email!',
-      number: '${label} is not a valid number!',
-    },
-  };
 
   return (
-    <div className="footer__color">
-      <div className='container'>
-        <div className="row">
-          <div className="col-6">
-            <img src="" alt="" /><img src="" alt="" />
-            <img src="" alt="" /><img src="" alt="" />
-          </div>
-          <div className="col-6">
-            <Form
-              {...layout}
-              name="nest-messages"
-              onFinish={onFinish}
-              style={{
-                maxWidth: 600,
-              }}
-              validateMessages={validateMessages}
-            >
-              <Form.Item
-                name={['user', 'email']}
-                label="Email"
-                rules={[
-                  {
-                    type: 'email',
-                  },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-
-
-              <Form.Item name={['user', 'introduction']} label="Introduction">
-                <Input.TextArea />
-              </Form.Item>
-              <Form.Item
-                wrapperCol={{
-                  ...layout.wrapperCol,
-                  offset: 8,
-                }}
-              >
-                <Button type="primary" htmlType="submit">
-                  Submit
-                </Button>
-              </Form.Item>
-            </Form>
-          </div>
-        </div>
+   <>
+       <footer className="footer">
+      <div className="waves">
+        <div className="wave" id="wave1"></div>
+        <div className="wave" id="wave2"></div>
+        <div className="wave" id="wave3"></div>
+        <div className="wave" id="wave4"></div>
       </div>
-    </div>
+
+      <p>&copy;2024 EXPRESSIFY | All Rights Reserved</p>
+      <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+      <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    </footer>
+   </>
   );
 }
 

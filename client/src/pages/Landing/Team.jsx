@@ -3,7 +3,7 @@ import '../../styles/team.scss';
 import { Carousel } from 'antd';
 import { LinkedinFilled, GithubFilled } from '@ant-design/icons';
 import adham from '../../imgs/WhatsApp Image 2024-05-30 at 12.26.41 AM.jpeg';
-
+import img from '../../imgs/Shrug-pana.png'
 const contentStyle = {
   height: '75vh',
   color: '#fff',
@@ -20,39 +20,39 @@ const teamMembers = [
     image: adham
   },
   {
-    name: 'Adham Maged Hassan',
+    name: 'Ali Fouad Marzabn',
     description: 'As an undergraduate computer science student majoring in big data, I aim to excel in big data analytics, web development, and AI. With skills in React.js, Node.js, and Flask, I\'m seeking a backend role to enhance my abilities and contribute to innovative projects. My goal is to gain hands-on experience in data analysis, machine learning, and AI, and to make a positive societal impact through data-driven solutions.',
     linkedin: 'https://www.linkedin.com/in/adham-maged-8535841bb/',
     github: 'https://github.com/Adham27',
-    image: adham
+    image: img
   },
   {
-    name: 'Adham Maged Hassan',
+    name: 'Mariam Shrif Amin',
     description: 'As an undergraduate computer science student majoring in big data, I aim to excel in big data analytics, web development, and AI. With skills in React.js, Node.js, and Flask, I\'m seeking a backend role to enhance my abilities and contribute to innovative projects. My goal is to gain hands-on experience in data analysis, machine learning, and AI, and to make a positive societal impact through data-driven solutions.',
     linkedin: 'https://www.linkedin.com/in/adham-maged-8535841bb/',
     github: 'https://github.com/Adham27',
-    image: adham
+    image: img
   },
   {
-    name: 'Adham Maged Hassan',
+    name: 'Mohmed Adel Khalifa',
     description: 'As an undergraduate computer science student majoring in big data, I aim to excel in big data analytics, web development, and AI. With skills in React.js, Node.js, and Flask, I\'m seeking a backend role to enhance my abilities and contribute to innovative projects. My goal is to gain hands-on experience in data analysis, machine learning, and AI, and to make a positive societal impact through data-driven solutions.',
     linkedin: 'https://www.linkedin.com/in/adham-maged-8535841bb/',
     github: 'https://github.com/Adham27',
-    image: adham
+    image: img
   },
   {
-    name: 'Adham Maged Hassan',
+    name: 'Yousef Mohmed Elhefny',
     description: 'As an undergraduate computer science student majoring in big data, I aim to excel in big data analytics, web development, and AI. With skills in React.js, Node.js, and Flask, I\'m seeking a backend role to enhance my abilities and contribute to innovative projects. My goal is to gain hands-on experience in data analysis, machine learning, and AI, and to make a positive societal impact through data-driven solutions.',
     linkedin: 'https://www.linkedin.com/in/adham-maged-8535841bb/',
     github: 'https://github.com/Adham27',
-    image: adham
+    image: img
   },
   
 ];
 
 const Team = () => {
   return (
-    <div className="bg-team">
+    <div className="bg-team ">
       <div className="container">
         <div className="d-flex justify-content-center pt-5 text-center">
           <div>

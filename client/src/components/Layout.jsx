@@ -1,9 +1,5 @@
-import React, { useState ,useEffect} from 'react';
-import { 
-  Link,
-  Outlet,
-  Navigate 
-} from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, Outlet, Navigate, useNavigate } from 'react-router-dom';
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -11,14 +7,14 @@ import {
   AppstoreOutlined,
   UserOutlined
 } from '@ant-design/icons';
-import { 
+import {
   Button,
-  Layout, 
-  Menu, 
-  theme 
+  Layout,
+  Menu,
+  theme,
+  message
 } from 'antd';
-
-//import Cookies from 'js-cookie'; 
+import Cookies from 'js-cookie';
 
 const AuthenticatedRoute = ({ children }) => {
   const [authenticated, setAuthenticated] = useState(() => {
@@ -42,20 +38,46 @@ const AuthenticatedRoute = ({ children }) => {
 };
 
 const { Header, Sider, Content } = Layout;
+
 const ProtectedRoute = () => {
-  
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
- const userId = localStorage.getItem('user_id');
+  const userId = localStorage.getItem('user_id');
+  const navigate = useNavigate();
+
+  const logout = async () => {
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('Token')}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to logout');
+      }
+
+      message.success('Logged out successfully');
+      Cookies.remove('access_token_cookie');
+      Cookies.remove('user_id');
+      localStorage.removeItem('Token');
+      localStorage.removeItem('user_id');
+      navigate('/');
+    } catch (error) {
+      message.error('Failed to logout');
+    }
+  };
+
   return (
     <AuthenticatedRoute>
       <Layout>
         <Sider trigger={null} collapsible collapsed={collapsed}>
           <div className="demo-logo-vertical" />
           <div className="p-2 text-white">
-            {collapsed? <h2>EXP</h2> : <h2>EXPRESSIFY</h2>}
+            {collapsed ? <h2>EXP</h2> : <h2>EXPRESSIFY</h2>}
           </div>
           <Menu
             theme="dark"
@@ -77,7 +99,6 @@ const ProtectedRoute = () => {
                 icon: <UserOutlined />,
                 label: <Link to={`/users/${userId}/profile`}>profile</Link>,
               },
-              
             ]}
           />
         </Sider>
@@ -90,20 +111,18 @@ const ProtectedRoute = () => {
             className='  '
           >
             <div className="d-flex justify-content-between">
-            <Button
-              type="text"
-              icon={collapsed? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
-              style={{
-                fontSize: '16px',
-                width: 64,
-                height: 64,
-              }}
-            />
-                    <Button danger className='mt-3 m-4' >Logout</Button>
-
+              <Button
+                type="text"
+                icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                onClick={() => setCollapsed(!collapsed)}
+                style={{
+                  fontSize: '16px',
+                  width: 64,
+                  height: 64,
+                }}
+              />
+              <Button danger className='mt-3 m-4' onClick={logout}>Logout</Button>
             </div>
-            
           </Header>
           <Content
             style={{
@@ -123,4 +142,5 @@ const ProtectedRoute = () => {
     </AuthenticatedRoute>
   );
 };
+
 export default ProtectedRoute;

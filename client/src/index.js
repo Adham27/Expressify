@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import App from './pages/App';
 import Profile from './pages/Profile';
 import Main from './pages/Landing/main';
+import Team from './pages/Landing/Team';
 import ContactUs from './pages/Landing/ContactUs';
 import Cookies from 'js-cookie'; 
 
@@ -31,6 +32,11 @@ const router = createBrowserRouter([
   {
     path: '/contact-us',
     element: <ContactUs />,
+    index: true
+  },
+  {
+    path:'/team',
+    element: <Team />,
     index: true
   },
   {

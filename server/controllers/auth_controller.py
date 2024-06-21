@@ -115,8 +115,5 @@ class Logout(Resource):
         unset_jwt_cookies(resp)
         return resp
     except Exception as e:
-            return {'msg':e}
+        return {'msg': e}, 500
   
-# @auth.route('/forgetpassword')
-# class ForgotPassword:
-#     pass
