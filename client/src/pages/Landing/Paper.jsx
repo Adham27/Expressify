@@ -23,8 +23,8 @@ const Paper = () => {
         </div>
         <div className="col d-flex align-items-center ">
           <div className="landing-hight p-3">
-            <h2 >you haven't seen<span className='text-span-welcome'> EXPRESSIFY</span> paper yet. </h2>
-            <p className='text-muted'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quaerat asperiores soluta minus. Qui ab ad quibusdam eveniet. Aperiam maiores perspiciatis blanditiis enim fugit praesentium! Sequi aliquid quibusdam nobis consequuntur quae?</p>
+            <h2 className='text-light'>you haven't seen<span className='text-span-welcome'> EXPRESSIFY</span> paper yet. </h2>
+            <p className='text-muted'>Techniques and methodologies to process multimodal data and extract meaningful features. Machine learning algorithms, such as deep learning models and ensemble methods, are commonly used for feature extraction and fusion. These algorithms enable the integration of data from different modalities, creating a holistic understanding of emotions and enhancing the accuracy of recognition systems. Check the paper</p>
            <button className="btn btn-primary w-100" onClick={handleDownload}>
             Download the paper
           </button>

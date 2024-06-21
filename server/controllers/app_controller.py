@@ -1,5 +1,6 @@
 import uuid
 import os
+import random
 import shutil
 from datetime import datetime
 import cv2
@@ -16,6 +17,10 @@ from models.reports import Reports
 from sklearn.preprocessing import LabelEncoder
 import tensorflow as tf
 import matplotlib.pyplot as plt
+
+# Set the Matplotlib backend to Agg
+import matplotlib
+matplotlib.use('Agg')
 
 # Create a Namespace for user operations
 application = Namespace('App', description='video analyze operation', path='/users')
@@ -44,11 +49,10 @@ def preprocess_video(video_path):
 
         video = VideoFileClip(video_path)
         total_frames = int(video.duration * video.fps)
-        max_frames = 10
         
-        # Calculate the interval to extract frames
-        frame_interval = max(1, total_frames // max_frames)
-        frames_to_extract = range(0, total_frames, frame_interval)[:max_frames]
+        # Select 5 random frames
+        num_frames_to_extract = 5
+        frames_to_extract = sorted(random.sample(range(total_frames), num_frames_to_extract))
 
         face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
@@ -215,7 +219,7 @@ class analyzeVideo(Resource):
         if not video_file:
             return jsonify({"error": "No video file provided"})
 
-        video_path = os.path.join('ai/temp_video', secure_filename(video_file.filename))
+        video_path = os.path.join('ai/temp_video/', secure_filename(video_file.filename))
         video_file.save(video_path)
 
         try:
