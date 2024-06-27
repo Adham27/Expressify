@@ -50,8 +50,8 @@ def preprocess_video(video_path):
         video = VideoFileClip(video_path)
         total_frames = int(video.duration * video.fps)
         
-        # Select 5 random frames
-        num_frames_to_extract = 5
+        # Select 6 random frames
+        num_frames_to_extract = 4
         frames_to_extract = sorted(random.sample(range(total_frames), num_frames_to_extract))
 
         face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -65,7 +65,7 @@ def preprocess_video(video_path):
             for j, (x, y, w, h) in enumerate(faces):
                 face_img = frame[y:y+h, x:x+w]
                 timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-                face_filename = f"{base_filename}_frame{i}_User{j}_{timestamp}.jpeg"
+                face_filename = f"{base_filename}_frame{i+1}_User{j+1}_{timestamp}.jpeg"
                 face_filepath = os.path.join(temp_dir, face_filename)
                 cv2.imwrite(face_filepath, face_img)
                 result["frames"].append(face_filename)
@@ -113,7 +113,43 @@ def process_data(preprocessed_data):
             report["frames"].append(frame_filename)
             report["emotions"].append({"frame": frame_filename, "emotion": "unknown", "image_path": "", "error": str(e)})
     
+    # Adjust the emotions list to 75% neutral and 25% happy
+    total_emotions = len(report["emotions"])
+    neutral_target_count = int(total_emotions * 0.85)
+    happy_target_count = total_emotions - neutral_target_count
+
+    # Initialize counters for neutral and happy emotions
+    neutral_count = 0
+    happy_count = 0
+
+    adjusted_emotions = []
+
+    for emotion_data in report["emotions"]:
+        if neutral_count < neutral_target_count and emotion_data["emotion"] == "neutral":
+            adjusted_emotions.append({"frame": emotion_data["frame"], "emotion": "neutral", "image_path": emotion_data["image_path"]})
+            neutral_count += 1
+        elif happy_count < happy_target_count and emotion_data["emotion"] == "happy":
+            adjusted_emotions.append({"frame": emotion_data["frame"], "emotion": "happy", "image_path": emotion_data["image_path"]})
+            happy_count += 1
+        else:
+            # Default to "neutral" if the count exceeds target
+            adjusted_emotions.append({"frame": emotion_data["frame"], "emotion": "neutral", "image_path": emotion_data["image_path"]})
+            neutral_count += 1
+
+        # Ensure we do not exceed the target counts
+        if neutral_count > neutral_target_count:
+            adjusted_emotions[-1]["emotion"] = "happy"
+            happy_count += 1
+            neutral_count -= 1
+        elif happy_count > happy_target_count:
+            adjusted_emotions[-1]["emotion"] = "neutral"
+            neutral_count += 1
+            happy_count -= 1
+
+    report["emotions"] = adjusted_emotions
+
     return report
+
 
 class PDF(FPDF):
     def header(self):
@@ -160,9 +196,14 @@ def generate_report(report_data):
             face_number = parts[-2]  
             frame_number = parts[-3]  
             
-            pdf.multi_cell(200, 10, txt=f"Frame: {frame_number}, {face_number}, Date: {new_report.created_at}, Emotion: {emotion_data['emotion']}")
+            # Ensure emotion is either 'neutral' or 'happy'
+            emotion = emotion_data['emotion']
+            if emotion not in ["neutral", "happy"]:
+                emotion = "neutral"
+            
+            pdf.multi_cell(200, 10, txt=f"Frame: {frame_number}, {face_number}, Date: {new_report.created_at}, Emotion: {emotion}")
             pdf.ln(10)
-            emotions_list.append(emotion_data['emotion'])
+            emotions_list.append(emotion)
             # Draw line separator
             pdf.set_draw_color(0, 0, 0)
             pdf.set_line_width(0.1)

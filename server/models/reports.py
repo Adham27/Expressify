@@ -14,9 +14,9 @@ class Reports(db.Model):
 
     def serialize(self):
         return {
-            "id": self.id,
-            "reportname": self.reportname,
-            "created_by": self.created_by,
-            "created_at": self.created_at,
-            "pdf":self.pdf
+                "id": self.id,
+                "reportname": self.reportname,
+                "created_by": self.created_by,
+                "created_at": self.created_at,
+                "pdf":self.pdf
         }

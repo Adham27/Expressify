@@ -29,7 +29,7 @@ const Header = () => {
               <Link to={'/login'} className="nav-link">App</Link>
             )}
             <Link to={'/team'}  className="nav-link">Team </Link>
-            <Link to={'/paper'}  className="nav-link">Paper </Link>
+            {/* <Link to={'/paper'}  className="nav-link">Paper </Link> */}
             </div>
             <div className="navbar-nav ml-auto">
             <Link to={'/contact-us'}> <button className="btn btn-primary">contact-us</button></Link>
